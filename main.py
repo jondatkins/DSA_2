@@ -1,34 +1,43 @@
 import re
 
 
+# This function returns a list of nodes representing
+# the path that was taken through the graph by following the predecessors.
+# Starting at the dest node, traverse the predecessors
+# dictionary backwards, building the final path as you go.
 def get_path(dest, predecessors):
     path = []
-    path.insert(0, dest)
-
-    if dest in predecessors:
-        pred = predecessors[dest]
-    else:
-        return path
+    pred = dest
 
     while pred is not None:
-        path.insert(0, pred)
-        if pred in predecessors:
-            pred = predecessors[pred]
-        else:
-            pred = None
+        path.append(pred)
+        pred = predecessors.get(pred, None)
+    path.reverse()
+
     return path
 
 
 def next_nearest_node(distances, unvisited):
-    pass
+    smallest = -1
+    nearest = ""
+    for idx, node in enumerate(unvisited):
+        if node in distances:
+            if idx == 0:
+                smallest = distances[node]
+                nearest = node
+            elif distances[node] < smallest:
+                smallest = distances[node]
+                nearest = node
+    if smallest == -1:
+        return None
+    return nearest
 
 
 def main():
-    dest = "York"
-    # predecessors = {"York": "London", "Hampshire": "Manchester", "London": "Hampshire"}
-    predecessors = {}
-    path = get_path(dest, predecessors)
-    print(path)
+    distances = {"Hartford": 7, "New Haven": 2, "Greenwich": 3}
+    unvisited = {"Hartford", "Greenwich"}
+    next_nearest = next_nearest_node(distances, unvisited)
+    print(next_nearest)
 
 
 if __name__ == "__main__":
