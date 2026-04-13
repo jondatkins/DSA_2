@@ -1,62 +1,83 @@
-from typing import Optional
+from main import relax_edge
 
-from main import next_nearest_node
-
-TestCase = tuple[dict[str, int], set[str], Optional[str]]
+Input = tuple[dict[str, float], tuple[str, str], float]
+Expected = tuple[bool, float]
+TestCase = tuple[Input, Expected]
 
 run_cases: list[TestCase] = [
     (
-        {"Minas Tirith": 4, "Isengard": 2, "Gondor": 3, "Mirkwood": 1},
-        {"Minas Tirith", "Gondor"},
-        "Gondor",
+        ({"Cairo": 0, "Tanta": 10, "Alexandria": float("inf")}, ("Cairo", "Tanta"), 5),
+        (True, 5),
     ),
     (
-        {"Minas Tirith": 1, "Isengard": 2, "Gondor": 2, "Mirkwood": 1},
-        {"Minas Tirith", "Gondor"},
-        "Minas Tirith",
+        (
+            {"Houston": 0, "Austin": 7, "Dallas": float("inf")},
+            ("Austin", "Dallas"),
+            3,
+        ),
+        (True, 10),
+    ),
+    (
+        ({"Chicago": 0, "Peoria": 3, "Urbana": float("inf")}, ("Chicago", "Peoria"), 5),
+        (False, 3),
     ),
 ]
 
 submit_cases: list[TestCase] = run_cases + [
-    ({}, set(), None),
     (
-        {"Minas Tirith": 1, "Isengard": 2, "Gondor": 2, "Mirkwood": 1},
-        {"Isengard", "Mirkwood"},
-        "Mirkwood",
+        (
+            {"Vienna": 0, "Salzburg": 10, "Graz": float("inf")},
+            ("Vienna", "Salzburg"),
+            -2,
+        ),
+        (True, -2),
     ),
     (
-        {
-            "Minas Tirith": 3,
-            "Isengard": 8,
-            "Gondor": 7,
-            "Mirkwood": 12,
-            "Rivendell": 10,
-        },
-        {"Isengard", "Mirkwood"},
-        "Isengard",
+        ({"Paris": 0, "Lyon": 8, "Cannes": 5}, ("Lyon", "Cannes"), 3),
+        (False, 5),
+    ),
+    (
+        (
+            {"Madrid": float("inf"), "Toledo": 5, "Bilbao": float("inf")},
+            ("Madrid", "Toledo"),
+            2,
+        ),
+        (False, 5),
     ),
 ]
 
 
-def test(
-    distances: dict[str, int], unvisited: set[str], expected: Optional[str]
-) -> bool:
+def test(input: Input, expected: Expected) -> bool:
     try:
         print("---------------------------------")
-        print("Inputs:")
-        print(f"- Distances: {distances}")
-        print(f"- Unvisited: {unvisited}\n")
-        print(f"Expecting: {expected}")
-        result = next_nearest_node(distances, unvisited)
-        print(f"Actual: {result}\n")
-        if result == expected:
-            print("Pass")
-            return True
-        print("Fail")
-        return False
+        print(f"Current total distances from {next(iter(input[0]))}:")
+        for node in input[0]:
+            print(f"  - {node}: {input[0][node]}")
+
+        print(
+            f"\nChecking new path from {input[1][0]} to {input[1][1]} with distance {input[2]}"
+        )
+
+        relaxed = relax_edge(input[0], input[1][0], input[1][1], input[2])
+
+        print(f"\nEdge relaxation expected? {expected[0]}")
+        print(f"Edge relaxation found?    {relaxed}")
+        if relaxed != expected[0]:
+            print("Fail")
+            return False
+
+        print(f"\nExpected distance to {input[1][1]}: {expected[1]}")
+        print(f"Actual distance to {input[1][1]}:   {input[0][input[1][1]]}")
+        if input[0][input[1][1]] != expected[1]:
+            print("\nFail")
+            return False
+
+        print("\nPass")
+        return True
+
     except Exception as e:
+        print(f"\nError: {e}")
         print("Fail")
-        print(e)
         return False
 
 
