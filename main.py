@@ -1,30 +1,25 @@
-class PriorityQueue:
+class MinHeap:
+    def push(self, priority, value):
+        self.elements.append((priority, value))
+        self.bubble_up(len(self.elements) - 1)
+
+    def bubble_up(self, index):
+        if index == 0:
+            return
+        parent_index = (index - 1) // 2
+        if self.elements[parent_index][0] > self.elements[index][0]:
+            temp_tup = self.elements[index]
+            self.elements[index] = self.elements[parent_index]
+            self.elements[parent_index] = temp_tup
+            self.bubble_up(parent_index)
+
+    # Don't touch below this line
+
     def __init__(self):
         self.elements = []
 
-    def empty(self):
-        if len(self.elements) == 0:
-            return True
-        return False
-
-    def push(self, priority, item):
-        self.elements.append((priority, item))
-
-    def pop(self):
+    def peek(self):
         if len(self.elements) == 0:
             return None
-        min_index_so_far = 0
-        for i in range(len(self.elements)):
-            if self.elements[i][0] < self.elements[min_index_so_far][0]:
-                min_index_so_far = i
-        min_tup = self.elements[min_index_so_far][1]
-        del self.elements[min_index_so_far]
-        return min_tup
 
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()
+        return self.elements[0][1]

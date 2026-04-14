@@ -1,86 +1,57 @@
-from main import PriorityQueue
+from main import MinHeap
 
-TestCase = tuple[list[tuple[int, str]], list[str]]
+TestCase = tuple[tuple[tuple[int, str], str], ...]
 
 run_cases: list[TestCase] = [
     (
-        [
-            (1, "Goldroad"),
-            (5, "Kingsroad"),
-            (10, "Prince's Pass"),
-        ],
-        [
-            "Goldroad",
-            "Kingsroad",
-            "Prince's Pass",
-        ],
+        ((7, "East Pass"), "East Pass"),
+        ((5, "Kingsroad"), "Kingsroad"),
+        ((1, "Skirling Pass"), "Skirling Pass"),
+        ((3, "The Hook"), "Skirling Pass"),
     ),
     (
-        [
-            (7, "Kingsroad"),
-            (5, "Godsway"),
-            (2, "East Pass"),
-        ],
-        [
-            "East Pass",
-            "Godsway",
-            "Kingsroad",
-        ],
+        ((5, "Street of Steel"), "Street of Steel"),
+        ((3, "Kingsroad"), "Kingsroad"),
+        ((7, "Skirling Pass"), "Kingsroad"),
+        ((1, "The Hook"), "The Hook"),
     ),
 ]
 
 submit_cases: list[TestCase] = run_cases + [
     (
-        [
-            (10, "Kingsroad"),
-            (1, "Prince's Pass"),
-            (3, "Goldroad"),
-            (2, "Godsway"),
-            (8, "Skirling Pass"),
-            (7, "Boneway"),
-            (6, "River Row"),
-            (7, "The Hook"),
-            (7, "Street of Steel"),
-            (5, "East Pass"),
-        ],
-        [
-            "Prince's Pass",
-            "Godsway",
-            "Goldroad",
-            "East Pass",
-            "River Row",
-            "Boneway",
-            "The Hook",
-            "Street of Steel",
-            "Skirling Pass",
-            "Kingsroad",
-        ],
+        ((10, "Goldroad"), "Goldroad"),
+        ((3, "Kingsroad"), "Kingsroad"),
+        ((8, "Godsway"), "Kingsroad"),
+        ((6, "East Pass"), "Kingsroad"),
+        ((7, "Skirling Pass"), "Kingsroad"),
+        ((2, "Boneway"), "Boneway"),
+        ((1, "River Row"), "River Row"),
+        ((7, "The Hook"), "River Row"),
+        ((5, "Street of Steel"), "River Row"),
     ),
 ]
 
 
-def test(push_inputs: list[tuple[int, str]], expected_pops: list[str]) -> bool:
+def test(inputs: TestCase) -> bool:
+    print("---------------------------------")
     try:
-        print("---------------------------------")
-        print("- Pushing inputs:")
-        for delay, street in push_inputs:
-            print(f"  - Delay: {delay}, Street: {street}")
-        print("\n")
-        print(f"Expected Pop Order: {expected_pops}")
-        pq = PriorityQueue()
-        for delay, street in push_inputs:
-            pq.push(delay, street)
-        results = []
-        while not pq.empty():
-            results.append(pq.pop())
-        print(f"Actual: {results}\n")
-        if results == expected_pops:
-            print("Pass")
-            return True
-        print("Fail")
-        return False
+        min_heap = MinHeap()
+        print("Inputs:")
+        for input, expected_output in inputs:
+            priority, value = input
+            print(f'- Pushing "{value}" with priority {priority}')
+            min_heap.push(priority, value)
+            print("- Peeking Heap:")
+            print(f"Expecting: {expected_output}")
+            result = min_heap.peek()
+            print(f"Actual: {result}\n")
+            if result != expected_output:
+                print("Fail")
+                return False
+        print("Pass")
+        return True
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {str(e)}")
         print("Fail")
         return False
 
@@ -90,7 +61,7 @@ def main():
     failed = 0
     skipped = len(submit_cases) - len(test_cases)
     for test_case in test_cases:
-        correct = test(*test_case)
+        correct = test(test_case)
         if correct:
             passed += 1
         else:
