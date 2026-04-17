@@ -8,7 +8,8 @@ class Constraint(TypedDict):
     val: int
 
 
-TestCase = tuple[list[int], list[Constraint], list[list[int]], list[int]]
+Solution = tuple[list[float], float]
+TestCase = tuple[list[int], list[Constraint], Solution]
 
 run_cases: list[TestCase] = [
     (
@@ -19,8 +20,7 @@ run_cases: list[TestCase] = [
             {"co": [0, 0, 1], "val": 10},
             {"co": [1, 2, 3], "val": 150},
         ],
-        [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 2, 3]],
-        [100, 25, 10, 150],
+        ([0, 0, 0, 100.0, 25.0, 10.0, 150.0], 0.0),
     ),
 ]
 
@@ -33,18 +33,12 @@ submit_cases: list[TestCase] = run_cases + [
             {"co": [0, 0, 1], "val": 20},
             {"co": [1, 2, 3], "val": 200},
         ],
-        [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 2, 3]],
-        [100, 50, 20, 200],
+        ([0, 0, 0, 100.0, 50.0, 20.0, 200.0], 0.0),
     ),
 ]
 
 
-def test(
-    coeffs: list[int],
-    constraints: list[Constraint],
-    expected_rows: list[list[int]],
-    expected_constraints: list[int],
-) -> bool:
+def test(coeffs: list[int], constraints: list[Constraint], expected: Solution) -> bool:
     print("---------------------------------")
     print("- Coefficients:")
     print(
@@ -65,19 +59,12 @@ def test(
             print(f" {together} must be less than or equal to {constraint['val']}\n")
             ss.add_constraint(constraint["co"], constraint["val"])
 
-        print("Expected rows:")
-        for row in expected_rows:
-            print(f" {row}")
-        actual_rows = ss.rows
-        print("Actual rows:")
-        for row in actual_rows:
-            print(f" {row}")
-        print("\n")
-        print(f"Expected constraints: {expected_constraints}")
-        actual_constraints = ss.constraints
-        print(f"Actual constraints: {actual_constraints}")
+        ss.add_slack_variables()
         print(f"{ss}\n")
-        if actual_constraints != expected_constraints or actual_rows != expected_rows:
+        solution = ss.get_solution_from_tableau()
+        print(f"Expected suboptimal solution: {expected}")
+        print(f"Current suboptimal solution: {solution}\n")
+        if solution != expected:
             print("Fail")
             return False
         print("Pass")
