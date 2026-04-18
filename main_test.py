@@ -8,8 +8,7 @@ class Constraint(TypedDict):
     val: int
 
 
-Solution = tuple[list[float], float]
-TestCase = tuple[list[int], list[Constraint], Solution]
+TestCase = tuple[list[int], list[Constraint], list[float], float]
 
 run_cases: list[TestCase] = [
     (
@@ -20,7 +19,8 @@ run_cases: list[TestCase] = [
             {"co": [0, 0, 1], "val": 10},
             {"co": [1, 2, 3], "val": 150},
         ],
-        ([0, 0, 0, 100.0, 25.0, 10.0, 150.0], 0.0),
+        [70.0, 25.0, 10.0, 30.0, 0, 0, 0, 0, 30.0, 0, 0, 0],
+        4800.0,
     ),
 ]
 
@@ -33,12 +33,18 @@ submit_cases: list[TestCase] = run_cases + [
             {"co": [0, 0, 1], "val": 20},
             {"co": [1, 2, 3], "val": 200},
         ],
-        ([0, 0, 0, 100.0, 50.0, 20.0, 200.0], 0.0),
+        [40.0, 50.0, 20.0, 60.0, 0, 0, 0, 0, 60.0, 0, 0, 0],
+        4900.0,
     ),
 ]
 
 
-def test(coeffs: list[int], constraints: list[Constraint], expected: Solution) -> bool:
+def test(
+    coeffs: list[int],
+    constraints: list[Constraint],
+    expected_obj: list[float],
+    expected_res: float,
+) -> bool:
     print("---------------------------------")
     print("- Coefficients:")
     print(
@@ -61,10 +67,19 @@ def test(coeffs: list[int], constraints: list[Constraint], expected: Solution) -
 
         ss.add_slack_variables()
         print(f"{ss}\n")
-        solution = ss.get_solution_from_tableau()
-        print(f"Expected suboptimal solution: {expected}")
-        print(f"Current suboptimal solution: {solution}\n")
-        if solution != expected:
+        ss.solve()
+        print("Calling solve():\n")
+        print(f"{ss}\n")
+        print(f"Expected Profits {expected_res}")
+        print(
+            f"by selling {expected_obj[0]} basic_subs, {expected_obj[1]} pro_subs, and {expected_obj[2]} enterprise_subs\n"
+        )
+        cos, res = ss.get_solution_from_tableau()
+        print(f"Actual Profits {res}")
+        print(
+            f"by selling {cos[0]} basic_subs, {cos[1]} pro_subs, and {cos[2]} enterprise_subs\n"
+        )
+        if cos != expected_obj or res != expected_res:
             print("Fail")
             return False
         print("Pass")
